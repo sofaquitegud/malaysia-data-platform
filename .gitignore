@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# dlt
+.dlt/secrets.toml
+~/.dlt/
+
+# secrets
+.env
+*-key.json
+
+# dbt
+target/
+dbt_packages/
+.user.yml

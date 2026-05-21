@@ -1,0 +1,11 @@
+[project]
+name = "malaysia-data-platform"
+version = "0.1.0"
+description = "End-to-end analytics platform on Malaysia open data (data.gov.my)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dlt[bigquery]>=1.27.0",
+    "pandas>=3.0.3",
+    "pyarrow>=24.0.0",
+]
