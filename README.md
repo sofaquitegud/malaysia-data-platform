@@ -1,32 +1,69 @@
 # Malaysia Data Platform
 
-End-to-end analytics platform on Malaysian open data ([data.gov.my](https://data.gov.my)):
-**ingestion (dlt) → BigQuery → dbt (staging/marts + tests/docs) → CI → Looker Studio.**
+End-to-end analytics platform on Malaysian open data ([data.gov.my](https://data.gov.my)).
 
-Theme: *Malaysia Cost of Living & Mobility* — fuel prices vs. inflation vs. transport ridership.
+**Theme:** *Malaysia Cost of Living & Mobility* — tracking fuel prices, inflation, and
+public-transport ridership over time to answer: how has the cost of mobility changed for
+Malaysians?
 
-## Stack
-- **EL:** Python + [dlt](https://dlthub.com) reading data.gov.my parquet files
-- **Warehouse:** BigQuery (sandbox, free tier)
-- **Transform:** dbt (coming in Phase 2)
-- **BI:** Looker Studio (coming in Phase 5)
+## Architecture
 
-## Setup
-```bash
-uv sync                                   # install deps
-gcloud auth application-default login     # local BigQuery auth
-uv run python -m ingest.run               # land raw data
+```
+data.gov.my              Python                  BigQuery (sandbox)         dbt                  Looker Studio
+┌─────────────┐  parquet ┌──────────────┐  load  ┌───────────────┐  query ┌───────────────┐  viz ┌──────────┐
+│ data.gov.my │ ───────▶ │ ingest/run.py│ ─────▶ │ raw_malaysia  │ ─────▶ │ staging/marts │ ───▶ │ dashboard│
+│ (parquet)   │          │ (idempotent) │        │ (landing zone)│        │ tests + docs  │      │          │
+└─────────────┘          └──────────────┘        └───────────────┘        └───────────────┘      └──────────┘
+                                                                                  │
+                                                         GitHub Actions CI: dbt build + sqlfluff on every PR
 ```
 
-## Data source
-All data © data.gov.my, used under their open data terms.
+## Stack
 
----
+| Layer | Tool | Why |
+|-------|------|-----|
+| Extract-Load | Python + `google-cloud-bigquery` | Explicit, ADC-native, zero credential friction for local dev |
+| Warehouse | BigQuery sandbox | Free (10 GB storage, 1 TB query/month); forces constraint-aware design |
+| Transform | dbt-bigquery | Layered modeling, lineage, tests-as-code, CI-friendly |
+| Orchestration | GitHub Actions | CI on every PR: sqlfluff lint + `dbt build` |
+| BI | Looker Studio | Native BigQuery connector, free, shareable |
 
-## 4. BigQuery auth (local)
+## Datasets (data.gov.my)
 
-dlt uses **Application Default Credentials** when you give it only a `project_id`. So no service-account key file on your laptop (you'll add one only for CI in Phase 4):
+| Table | Source | Description |
+|-------|--------|-------------|
+| `raw_malaysia.fuelprice` | [fuelprice](https://data.gov.my/data-catalogue/fuelprice) | Weekly RON95/RON97/diesel retail prices (2017–present) |
+| *(more coming)* | | CPI, transport ridership |
+
+## Quickstart
 
 ```bash
-gcloud auth application-default login
+# 1. install deps
+uv sync
+
+# 2. authenticate (two separate steps — a common gotcha)
+gcloud auth login                        # authenticates gcloud CLI
+gcloud auth application-default login   # sets ADC for Python libraries
 gcloud config set project malaysia-open-data
+
+# 3. land raw data
+uv run python -m ingest.run
+```
+
+> **Why two auth commands?** `gcloud auth login` = CLI credentials.
+> `gcloud auth application-default login` = ADC credentials that `google.auth.default()`
+> (used by `bigquery.Client()`) reads. They are separate credential stores — skipping the
+> second step causes `DefaultCredentialsError` even when you're logged into the CLI.
+
+## BigQuery sandbox limits
+
+| Limit | Value | Impact |
+|-------|-------|--------|
+| Storage | 10 GB free | Fine for this dataset size |
+| Query | 1 TB/month free | Fine; dbt staging models are views (no storage cost) |
+| Table expiry | 60 days auto-delete | Expected; document it rather than fight it |
+| Scheduled queries | Not available | Why ingestion is a Python job, not a managed transfer |
+
+## Data source
+
+All data © [data.gov.my](https://data.gov.my), used under Malaysia's open data terms.

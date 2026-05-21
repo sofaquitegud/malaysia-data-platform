@@ -1,6 +1,0 @@
-[destination.bigquery]
-# Must match the location you give dbt later. US multi-region = sandbox default.
-location = "us-central1"
-
-[runtime]
-log_level = "INFO"
