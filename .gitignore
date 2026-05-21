@@ -9,10 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-# dlt
-.dlt/secrets.toml
-~/.dlt/
-
 # secrets
 .env
 *-key.json
