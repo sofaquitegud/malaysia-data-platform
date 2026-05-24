@@ -5,6 +5,7 @@ description = "End-to-end analytics platform on Malaysia open data (data.gov.my)
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "dbt-bigquery>=1.11.1",
     "google-cloud-bigquery[pandas]>=3.41.0",
     "pandas>=3.0.3",
     "pyarrow>=24.0.0",

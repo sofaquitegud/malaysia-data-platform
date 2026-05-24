@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw_malaysia
+    database: malaysia-open-data-syafiq
+    schema: raw_malaysia
+    config:
+      loaded_at_field: _ingested_at
+      freshness:
+        warn_after: {count: 10, period: day}
+        error_after: {count: 30, period: day}
+    tables:
+      - name: fuelprice
+        description: "Weekly retail prices of RON95, RON97, and diesel in Malaysia."
+      - name: cpi_2d
+        description: "Monthly headline Consumer Price Index for Malaysia (DOSM)."

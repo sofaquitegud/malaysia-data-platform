@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: fct_fuel_prices
+    description: >
+      Fuel prices in long format. Grain: one row per fuel type per week.
+      Unpivoted from stg_fuelprice for easier charting and aggregation.
+    columns:
+      - name: fuel_price_id
+        description: "Surrogate key: hash of price_date + fuel_type."
+        tests: [not_null, unique]
+      - name: price_date
+        description: "Effective date of the price."
+        tests: [not_null]
+      - name: fuel_type
+        description: "Fuel type: RON95, RON97, or Diesel."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["RON95", "RON97", "Diesel"]
+      - name: price_myr
+        description: "Retail price in Malaysian Ringgit per litre."
+        tests: [not_null]
+
+  - name: fct_cpi
+    description: >
+      Monthly CPI by 2-digit COICOP division. Grain: one row per division per month.
+      Filter to cpi_division = 'transport' for the cost-of-mobility join with fct_fuel_prices.
+    columns:
+      - name: cpi_id
+        description: "Surrogate key: hash of cpi_month + cpi_division."
+        tests: [not_null, unique]
+      - name: cpi_month
+        description: "Effective month."
+        tests: [not_null]
+      - name: cpi_division
+        description: "COICOP 2-digit division."
+        tests: [not_null]
+      - name: cpi_index
+        description: "CPI value for that division-month."
+        tests: [not_null]
+
+  - name: dim_fuel_type
+    description: "Fuel type dimension with description and subsidy status."
+    columns:
+      - name: fuel_type
+        description: "Fuel type identifier (matches fct_fuel_prices.fuel_type)."
+        tests: [not_null, unique]
+      - name: fuel_type_description
+        description: "Human readable fuel type description."
+        tests: [not_null]
+      - name: is_subsidised
+        description: "True if this fuel type is government-subsidised."
+        tests: [not_null]

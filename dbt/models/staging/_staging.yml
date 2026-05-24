@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_fuelprice
+    description: >
+      Cleaned weekly fuel prices. One row per week.
+      Filtered to series_type = 'level' (actual prices, not index series).
+    columns:
+      - name: price_date
+        description: "Effective date of the fuel price (weekly cadence)."
+        tests: [not_null, unique]
+      - name: ron95_price_myr
+        description: "RON 95 retail price, Malaysia Ringgit per litre."
+        tests: [not_null]
+      - name: ron97_price_myr
+        description: "RON 97 retail price, Malaysia Ringgit per litre."
+        tests: [not_null]
+      - name: diesel_price_myr
+        description: "Diesel retail price, Malaysia Ringgit per litre."
+        tests: [not_null]
+
+  - name: stg_cpi_2d
+    description: "Cleaned monthly CPI by 2-digit COICOP division. Grain: one row per division per month."
+    columns:
+      - name: cpi_month
+        description: "Effective month of the index reading."
+        tests: [not_null]
+      - name: cpi_division
+        description: "COICOP 2-digit division label (e.g., 'transport', 'food_beverages')."
+        tests: [not_null]
+      - name: cpi_index
+        description: "CPI value for the division in that month."
+        tests: [not_null]
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [cpi_month, cpi_division]

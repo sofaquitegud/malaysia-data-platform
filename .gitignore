@@ -13,7 +13,11 @@ wheels/
 .env
 *-key.json
 
+# personal dev notes — local only
+DEVLOG.md
+
 # dbt
 target/
 dbt_packages/
 .user.yml
+logs/
