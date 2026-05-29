@@ -33,7 +33,8 @@ data.gov.my              Python                  BigQuery (sandbox)         dbt 
 | Table | Source | Description |
 |-------|--------|-------------|
 | `raw_malaysia.fuelprice` | [fuelprice](https://data.gov.my/data-catalogue/fuelprice) | Weekly RON95/RON97/diesel retail prices (2017–present) |
-| *(more coming)* | | CPI, transport ridership |
+| `raw_malaysia.cpi_2d` | [cpi_2d](https://data.gov.my/data-catalogue/cpi_2d) | Monthly CPI by 2-digit COICOP division (DOSM, 2010–present) |
+| `raw_malaysia.ridership_headline` | [ridership_headline](https://data.gov.my/data-catalogue/ridership_headline) | Daily public transport ridership by operator (2019–present) |
 
 ## Quickstart
 
@@ -42,12 +43,18 @@ data.gov.my              Python                  BigQuery (sandbox)         dbt 
 uv sync
 
 # 2. authenticate (two separate steps — a common gotcha)
-gcloud auth login                        # authenticates gcloud CLI
-gcloud auth application-default login   # sets ADC for Python libraries
-gcloud config set project malaysia-open-data
+gcloud auth login                                    # authenticates gcloud CLI
+gcloud auth application-default login               # sets ADC for Python libraries
+gcloud config set project malaysia-open-data-syafiq
 
 # 3. land raw data
 uv run python -m ingest.run
+
+# 4. build dbt models + run tests
+cd dbt && dbt deps && dbt build
+
+# 5. (optional) browse lineage docs
+dbt docs generate && dbt docs serve
 ```
 
 > **Why two auth commands?** `gcloud auth login` = CLI credentials.
