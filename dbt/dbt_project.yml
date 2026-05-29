@@ -16,3 +16,7 @@ models:
     marts:
       +materialized: table
       +schema: dbt_marts
+
+seeds:
+  malaysia_data_platform:
+    +schema: dbt_marts

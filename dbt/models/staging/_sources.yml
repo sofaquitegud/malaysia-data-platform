@@ -14,3 +14,5 @@ sources:
         description: "Weekly retail prices of RON95, RON97, and diesel in Malaysia."
       - name: cpi_2d
         description: "Monthly headline Consumer Price Index for Malaysia (DOSM)."
+      - name: ridership_headline
+        description: "Daily public transport ridership by operator in Malaysia."

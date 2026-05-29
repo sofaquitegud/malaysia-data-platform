@@ -53,3 +53,39 @@ models:
       - name: is_subsidised
         description: "True if this fuel type is government-subsidised."
         tests: [not_null]
+
+  - name: mart_fuel_cpi_monthly
+    description: "Monthly average retail fuel prices joined with headline CPI. Analytical grain for the cost-of-mobility dashboard."
+    columns:
+      - name: price_month
+        description: "First day of the month (date_trunc of price_date)."
+        tests:
+          - not_null
+      - name: fuel_type
+        description: "Fuel type (RON95, RON97, Diesel)."
+        tests:
+          - not_null
+      - name: avg_price_myr
+        description: "Average weekly retail price in MYR for the month."
+        tests:
+          - not_null
+      - name: transport_cpi_index
+        description: "DOSM Transport CPI index (division 07) for the month. NULL when CPI data lags fuel data."
+
+  - name: fct_ridership
+    description: >
+      Daily ridership in long format. Grain: one row per operator per day.
+      Unpivoted from stg_ridership; NULL rows (operator not yet launched) excluded.
+    columns:
+      - name: ridership_id
+        description: "Surrogate key: hash of ridership_date + operator."
+        tests: [not_null, unique]
+      - name: ridership_date
+        description: "Date of the ridership count."
+        tests: [not_null]
+      - name: operator
+        description: "Operator code (e.g. rail_lrt_kj, bus_rkl)."
+        tests: [not_null]
+      - name: passengers
+        description: "Daily passenger count for that operator."
+        tests: [not_null]

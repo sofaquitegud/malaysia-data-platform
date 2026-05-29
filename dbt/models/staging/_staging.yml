@@ -35,3 +35,13 @@ models:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [cpi_month, cpi_division]
+
+  - name: stg_ridership
+    description: >
+      Cleaned daily public transport ridership. One row per day.
+      Wide format: one column per operator with _passengers suffix.
+      NULLs preserved - operator did not operate on that date.
+    columns:
+      - name: ridership_date
+        description: "Date of the ridership count."
+        tests: [not_null, unique]
