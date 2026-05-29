@@ -8,7 +8,7 @@ with monthly_fuel as (
         max(price_myr) as max_price_myr,
         count(*) as weekly_observations
     from {{ ref('fct_fuel_prices') }}
-    group by 1, 2
+    group by price_month, fuel_type
 ),
 
 transport_cpi as (
@@ -28,8 +28,8 @@ joined as (
         f.max_price_myr,
         f.weekly_observations,
         c.transport_cpi_index
-    from monthly_fuel f
-    left join transport_cpi c on f.price_month = c.cpi_month
+    from monthly_fuel as f
+    left join transport_cpi as c on f.price_month = c.cpi_month
 )
 
 select * from joined

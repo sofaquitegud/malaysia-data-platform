@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "dbt/**"
+      - "ingest/**"
+      - ".github/workflows/ci.yml"
+      - ".sqlfluff"
+      - "pyproject.toml"
+      - "uv.lock"
+  workflow_dispatch:
+
+env:
+  DBT_PROFILES_DIR: ${{ github.workspace }}/.github/ci-profiles
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Install dbt packages
+        run: uv run dbt deps --project-dir dbt
+
+      - name: Lint SQL (sqlfluff)
+        run: uv run sqlfluff lint dbt/models dbt/tests
+
+      - name: dbt build
+        run: uv run dbt build --project-dir dbt

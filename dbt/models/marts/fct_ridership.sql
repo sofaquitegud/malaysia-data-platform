@@ -4,7 +4,10 @@ with stg as (
 ),
 
 unpivoted as (
-    select ridership_date, operator, passengers
+    select
+        ridership_date,
+        operator,
+        passengers
     from stg
     unpivot (
         passengers for operator in (

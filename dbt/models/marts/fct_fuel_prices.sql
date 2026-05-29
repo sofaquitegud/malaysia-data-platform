@@ -4,7 +4,10 @@ with stg as (
 ),
 
 unpivoted as (
-    select price_date, fuel_type, price_myr
+    select
+        price_date,
+        fuel_type,
+        price_myr
     from stg
     unpivot (
         price_myr for fuel_type in (
