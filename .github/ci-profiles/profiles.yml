@@ -1,0 +1,11 @@
+malaysia_data_platform:
+  target: ci
+  outputs:
+    ci:
+      type: bigquery
+      method: oauth
+      project: malaysia-open-data-syafiq
+      dataset: dbt_dev
+      location: US
+      threads: 4
+      timeout_seconds: 300
